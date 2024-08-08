@@ -1,5 +1,5 @@
 import UserAvatar from "@/components/userAvatar";
-import { GetServerSideProps, InferGetServerSidePropsType } from "next"
+import { GetServerSideProps, GetStaticProps, InferGetServerSidePropsType } from "next"
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
@@ -10,14 +10,17 @@ import { useRouter } from "next/navigation";
 import { Post } from "@/types/post";
 import { BASE_URL } from "@/constants/baseUrl";
 
-export const getServerSideProps = (async () => {
-  const res = await fetch(`${BASE_URL}/posts`)
-  const data = await res.json();
+export const getStaticProps = (async () => {
+  const res = await fetch(`${BASE_URL}/posts`);
+  const data = await res.json()
   return { props: { data } }
-}) satisfies GetServerSideProps<{ data: Post }>
+}) satisfies GetStaticProps<{
+  data: Post[]
+}>
 
-const Posts = ({ data }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+const Posts = ({ data }: InferGetServerSidePropsType<typeof getStaticProps>) => {
   const router = useRouter();
+
   return (
     <div>
       <h1 className="font-black text-6xl mb-3">Get Inspired</h1>

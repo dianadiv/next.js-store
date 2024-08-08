@@ -18,10 +18,13 @@ export default function Home() {
           <Image src='/images/homePage.jpg' alt="Logo" width={400} height={400} className='rounded-md' />
         </div>
       ))}
-      <div className='w-1/5 p-5 flex flex-col justify-around bg-white rounded-md'>
+      <div className='w-1/5 p-5 flex flex-col justify-between bg-white rounded-md'>
         <h1 className='font-bold text-4xl'>Get started</h1>
         <p className='font-bold'>Take us along ur journeys and tag #LetsGoFurther to be featured</p>
-        <p>Start exploring</p>
+        <div>
+          <Link href='/posts' className='underline mr-1'>Start Exploring</Link>
+          <ArrowRightAltOutlinedIcon />
+        </div>
       </div>
     </div>
   );
