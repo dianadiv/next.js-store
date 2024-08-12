@@ -11,6 +11,9 @@ const Header = () => {
           <Link href="/posts" className="hover:underline">
             <span className="font-bold text-xl">Posts</span>
           </Link>
+          <Link href="/users" className="hover:underline">
+            <span className="font-bold text-xl">Users</span>
+          </Link>
         </ul>
       </nav>
       <div className="flex gap-3">

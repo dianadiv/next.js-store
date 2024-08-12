@@ -1,11 +1,10 @@
 import UserAvatar from '@/components/userAvatar';
 import { BASE_URL } from '@/constants/baseUrl';
 import { Post } from '@/types/post';
-import { Paper, Grid, Avatar, Divider } from '@mui/material';
-import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { Paper, Grid, Divider } from '@mui/material';
+import { Fragment } from 'react';
 
-interface Comments {
+interface Comment {
   postId: number;
   id: number;
   name: string;
@@ -13,34 +12,26 @@ interface Comments {
   body: string;
 }
 
-const PostPage = () => {
-  const router = useRouter();
-  const { id } = router.query;
-  const [post, setPost] = useState<Post | null>(null);
-  const [comments, setComments] = useState<Comments[] | null>(null);
-  const [loading, setLoading] = useState(false);
+export const getStaticPaths = async () => {
+  const posts = await fetch(`${BASE_URL}/posts`).then(data => data.json());
+  const paths = posts.map((post: Post) => {
+    return { params: { id: String(post.id) } }
+  })
 
-  useEffect(() => {
-    if (!id) return;
-    setLoading(true);
-    Promise.all([
-      fetch(`${BASE_URL}/posts/${id}`),
-      fetch(`${BASE_URL}/posts/${id}/comments`)
-    ])
-      .then(async ([postResponse, commentsResponse]) => {
-        const post = await postResponse.json();
-        const comments = await commentsResponse.json();
-        return [post, comments];
-      })
-      .then(([post, comment]) => {
-        setPost(post);
-        setComments(comment);
-      })
-      .finally(() => setLoading(false));
-  }, [id]);
+  return {
+    paths,
+    fallback: false,
+  }
+};
 
-  if (loading) return <h1>Loading...</h1>;
- 
+export const getStaticProps = (async (context: { params: { id: string } }) => {
+  const id = context.params?.id;
+  const post = await fetch(`${BASE_URL}/posts/${id}`).then(data => data.json());
+  const comments = await fetch(`${BASE_URL}/posts/${id}/comments`).then(data => data.json());
+  return { props: { post, comments } }
+});
+
+const PostPage = ({ post, comments }: { post: Post, comments: Comment[] }) => {
   return (
     <div className='pb-10'>
       <h1 className="font-black text-6xl mb-3">Get Inspired by users post</h1>
@@ -54,11 +45,11 @@ const PostPage = () => {
       </div>
       <h2 className='font-semibold text-xl mt-10'>Comments:</h2>
       <Paper className='mt-5 p-5 max-w-[70%]'>
-        {comments?.map((comment: Comments, index) => {
+        {comments?.map((comment: Comment, index) => {
           const showDivider = index !== comments.length - 1;
           return (
-            <>
-              <Grid container wrap="nowrap" spacing={2} key={comment.id}>
+            <Fragment key={comment.id}>
+              <Grid container wrap="nowrap" spacing={2}>
                 <Grid item>
                   <UserAvatar seed={String(comment.id)} />
                 </Grid>
@@ -69,7 +60,7 @@ const PostPage = () => {
                 </Grid>
               </Grid>
               {showDivider && <Divider variant="fullWidth" style={{ margin: "30px 0" }} />}
-            </>
+            </Fragment>
           )
         })}
       </Paper>
